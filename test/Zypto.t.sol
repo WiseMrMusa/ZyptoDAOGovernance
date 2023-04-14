@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "../src/ZyptoVoteToken.sol";
 import "../src/ZyptoGovernance.sol";
+
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 
 contract ZyptoLabTest is Test {
@@ -22,5 +23,19 @@ contract ZyptoLabTest is Test {
         zyptoVoteToken.mint(msg.sender,100 ether);
         assertEq(zyptoVoteToken.balanceOf(msg.sender),100 ether);
         vm.stopPrank();
+    }
+    function testPropose() public {
+       vm.startPrank(address(0x10));
+       vm.deal(address(0x10), 1000);
+       address[] memory targets = new address[](1);
+       targets[0] = address(zyptoGovernance);
+       uint256[] memory values = new uint256[](1);
+       values[0] = 0;
+       bytes[] memory calldatas = new bytes[](1);
+       calldatas[0]  = abi.encodeWithSignature("transfer(address,uint256)", address(zyptoGovernance), 10);
+       string memory description = "My name might not be the same";
+       zyptoGovernance.propose(targets, values, calldatas, description);
+       vm.stopPrank();
+
     }
 }

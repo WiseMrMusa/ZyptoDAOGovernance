@@ -3,13 +3,19 @@ pragma solidity ^0.8.0;
 
 interface IICO{
 
-    function updatePriceForOneToken(uint256 price) external;
+    function depositNativeToken() external payable;
 
-    function buy() external payable;
+    function queryShare() external view returns(uint256);
 
-    function claimProfits() external;
+    function queryName() external view returns(string memory);
 
-    function claimTokensNotSold() external;
+    function queryDescription() external view returns(string memory);
 
-    function exchangeRate() external view returns (uint256);
-}
+    function claimToken() external;
+    
+    function withDrawValue() external;
+
+
+
+
+}   

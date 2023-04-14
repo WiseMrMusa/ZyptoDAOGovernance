@@ -2,6 +2,7 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
+verbosity = 5
 
 [rpc_endpoints]
 goerli = "${GOERLI_RPC_URL}"
