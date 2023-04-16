@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.17;
 
 contract ICOStorage {
-    address public Token;
+    //address public Token;
     uint256 public priceForOneToken;
 
     uint256 projectStartTime;
     uint256 projectStopTime;
+    uint256 amountToRaise;
+    uint256 perTotalSale;
 
     address projectOwner;
     string projectName;
