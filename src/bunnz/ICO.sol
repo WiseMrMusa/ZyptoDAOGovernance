@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
+
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -9,43 +10,51 @@ import "./interface/IICO.sol";
 import "./interface/IBunzz.sol";
 
 contract ICO is ICOStorage, IICO, Ownable, IBunzz{
-
-    using SafeMath for uint256;
-
+    event Deposit(address, uint256);
     event PriceForOneTokenChanged(address setter, uint256 price);
     event TokenAddressSet(address setter, address token);
-    event TokenBought(address buyer, uint256 amount);
-    event Deposit(address, uint256);
-
+    
+    
 
     constructor(
-        address _tokenAddress,
-        uint256 _totalTokenShare,
-        uint256 _projectEndTime,
         string memory _projectName,
         string memory _description,
+        address _tokenAddress,
+        uint256 _amountToRaise,
+        uint256 _totalTokenShare,
+        uint256 _projectStartTime,
+        uint256 _projectEndTime,
         address _owner
     ) {
         projectOwner = _owner;
         projectName = _projectName;
         projectDescription = _description;
-        projectStartTime = block.timestamp;
-        projectStopTime = block.timestamp + _projectEndTime;
-
-        totalShare = _totalTokenShare;
         tokenContractAddress = _tokenAddress;
+        amountToRaise = _amountToRaise;
+        totalShare = _totalTokenShare;
+        projectStartTime = _projectStartTime;
+        projectStopTime = _projectEndTime;
+        
+        
     }
 
 
-    function connectToOtherContracts(address[] calldata _contracts) external override onlyOwner{
+    function connectToOtherContracts(address[] calldata _contracts) external override onlyOwner {
         setTokenAddress(_contracts[0]);
     }
 
     function setTokenAddress(address token) internal {
-        require(Token!=token, "ICO: new token address is the same as the old one");
+        require(tokenContractAddress!=token, "ICO: new token address is the same as the old one");
         emit TokenAddressSet(msg.sender, token);
-        Token = token;
+        tokenContractAddress = token;
     }
+    
+    function updatePriceForOneToken(uint256 price) external override onlyOwner{
+        require(priceForOneToken!=price, "ICO: new price is not different from the old price");
+        emit PriceForOneTokenChanged(msg.sender, price);
+        priceForOneToken = price;
+    }
+
 
     function depositNativeToken() public payable {
         //require msg.value is greater than 0;
@@ -109,4 +118,23 @@ contract ICO is ICOStorage, IICO, Ownable, IBunzz{
     function ensureIsProjectOwner() internal view {
         if (msg.sender != projectOwner) revert("You are not authorized for this");
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
