@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "./bunnz/ICO.sol";
+import "./bunnz/launchPad.sol";
 
 contract ZyptoGovernance is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction {
 
@@ -23,7 +24,7 @@ contract ZyptoGovernance is Governor, GovernorCountingSimple, GovernorVotes, Gov
     {}
 
     struct BussinessProposal {
-        ICO platform;
+        padICO platform;
         address bussinessOwner;
         IERC20 bussinessToken;
         uint256 startTime;
@@ -35,17 +36,17 @@ contract ZyptoGovernance is Governor, GovernorCountingSimple, GovernorVotes, Gov
     uint256 bussinessID;
     mapping(uint256 => BussinessProposal) private _bussProposals;
 
-    function fundBussiness(address _tokenAddress, uint256 _price,uint256 period) external onlyGovernance() {
+    function fundBussiness(address _tokenAddress, string memory _projectName,string memory _description,uint256 _amountToRaise, uint256 _minETH,uint256 _totalSupply,uint256 _tokenPerMinETH,uint256 period) external onlyGovernance() {
         bussinessID = bussinessID + 1;
         BussinessProposal storage bussinessProposal = _bussProposals[bussinessID];
         bussinessProposal.bussinessOwner = _msgSender();
         bussinessProposal.startTime = block.timestamp;
         bussinessProposal.endTime = block.timestamp + period;
-        bussinessProposal.platform = new ICO();
+        bussinessProposal.platform = new padICO(_projectName,_description,_tokenAddress,_tokenPerMinETH,_amountToRaise,_totalSupply,_minETH);
         address[] memory t = new address[](1);
         t[0] = _tokenAddress;
         bussinessProposal.platform.connectToOtherContracts(t);
-        bussinessProposal.platform.updatePriceForOneToken(_price);
+        bussinessProposal.platform.updatePriceForOneToken(_minETH);
 
         emit BussinessCreated(
             bussinessID,
