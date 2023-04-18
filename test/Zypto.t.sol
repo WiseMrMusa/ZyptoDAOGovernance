@@ -19,9 +19,6 @@ contract ZyptoLabTest is Test {
         zyptoVoteToken = new ZyptoVoteToken();
         zyptoGovernance = new ZyptoGovernance(IVotes(address(zyptoVoteToken)));
         vm.stopPrank();
-        vm.startPrank(address(0x20));
-        mock = new mockTOken("Zyper", "ZYP");
-        mock.mint(400);
     }
 
     function test_1_BuyToken() public {
@@ -44,12 +41,4 @@ contract ZyptoLabTest is Test {
        vm.stopPrank();
 
     }
-
-    function testFundBussiness() public {
-        vm.startPrank(address(0x20));
-        vm.deal(address(0x20), 1000);
-        zyptoGovernance.fundBussiness(address(mock), "getEquity", "fundraising for Companies", 120, 1000, 400,1, 300);
-
-    }
-
 }

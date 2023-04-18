@@ -19,10 +19,7 @@ contract padICO is padStorage, Ownable {
         uint indexed duration,
         string indexed _tokenName
     );
-    event stakeSuccessful(
-        uint256 indexed amount,
-        address indexed stakerName
-    );
+    event stakeSuccessful(uint256 indexed amount, address indexed stakerName);
     event claimedSuccessfully(
         address indexed receiver,
         uint256 indexed claimAmount,
@@ -52,13 +49,6 @@ contract padICO is padStorage, Ownable {
                 _totalSupply),
             "_total?Supply not enough for amountEthToRaise"
         );
-        //launchPadExists[_tokenAddress] == true;
-        //padIDs.push(_padId);
-        IERC20(_tokenAddress).transferFrom(
-            msg.sender,
-            address(this),
-            _totalSupply
-        );
 
         Pad({
             projectName: _projectName,
@@ -71,8 +61,6 @@ contract padICO is padStorage, Ownable {
             duration: 0,
             startLaunch: false
         });
-
-        //padIds[_padId] = newPad;
 
         emit createdPad(
             _projectName,
@@ -113,13 +101,17 @@ contract padICO is padStorage, Ownable {
         string memory _projectName,
         uint256 _period
     ) public onlyOwner {
-        //require(msg.sender == moderator, "Access denied");
-        //require(idUsed[_padId], "Pad does not exist");
+        require(msg.sender == moderator, "Access denied");
         Pad memory pad;
-        //require(pad.startPad == false, "Pad already launched");
+        require(pad.startLaunch == false, "Pad already launched");
         bytes32 padNameInput = keccak256(abi.encodePacked(_projectName));
         bytes32 padName = keccak256(abi.encodePacked(pad.projectName));
         require(padName == padNameInput, "Invalid token name");
+        IERC20(pad.tokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            pad.totalSupply
+        );
         uint256 period = block.timestamp + _period;
         pad.startLaunch = true;
         pad.duration = period;
@@ -135,13 +127,9 @@ contract padICO is padStorage, Ownable {
         require(pad.startLaunch == true, "Pad not available");
         require(block.timestamp < pad.duration, "LaunchPad Ended");
         require(msg.value >= minETH, "Insufficient Ethers");
-        //require(idUsed[_padId], "Pad does not exist");
-        //require(pad.startLaunch == true, "Pad not available");
 
         uint256 _amount = msg.value;
-        // bytes32 padNameInput = keccak256(abi.encodePacked(_tokenName));
-        // bytes32 padName = keccak256(abi.encodePacked(pad.projectName));
-        //require(padName == padNameInput, "Invalid token name");
+        
         amountBought[msg.sender] = _amount;
 
         emit stakeSuccessful(_amount, msg.sender);
@@ -151,7 +139,6 @@ contract padICO is padStorage, Ownable {
     }
 
     function claimLaunchPad(string memory _projectName) public {
-        //require(idUsed[_padId], "Pad doesn't exist");
         Pad memory pad;
         bytes32 padNameInput = keccak256(abi.encodePacked(_projectName));
         bytes32 padName = keccak256(abi.encodePacked(pad.projectName));
@@ -171,7 +158,6 @@ contract padICO is padStorage, Ownable {
             claimAmount
         );
         require(transferSuccessful, "transfer failed");
-        // if (transferSuccessful == false) revert("claimAmount transfer failed");
         amountBought[msg.sender] = 0;
         pad.totalSupply -= claimAmount;
 
@@ -181,14 +167,6 @@ contract padICO is padStorage, Ownable {
             address(pad.tokenAddress)
         );
     }
-
-    // function increasePadDuration(uint256 _padId, uint256 _timeInSeconds) public returns (bool timeAdded){
-    //     require(msg.sender == moderator, "Access denied");
-    //     Pad storage pad;
-    //     pad.duration += _timeInSeconds;
-    //     timeAdded = true;
-    //     return timeAdded;
-    // }
 
     function getBalance() public view returns (uint256) {
         return address(this).balance;
